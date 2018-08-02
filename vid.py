@@ -21,10 +21,11 @@ loglevel_param = click.option('--loglevel', type=str, default='error')
 codec_param = click.option('--codec', type=str, default='libx264')
 verbose_param = click.option('--verbose/--no-verbose', default=False)
 
+
 def globbed_paths(filepaths):
     output = []
     for filepath in filepaths:
-        globbed_files = glob.glob(filepath)
+        globbed_files = glob.glob(filepath, recursive=True)
         if not globbed_files:
             globbed_files = [filepath]
         sorted_paths = natsorted(globbed_files, alg=ns.PATH)
