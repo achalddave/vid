@@ -9,6 +9,10 @@
 
 See `vid <command> --help` for more info.
 
+`vid` is primarily a wrapper around some
+[`moviepy`](https://github.com/Zulko/moviepy) and [`ffmpeg`](http://ffmpeg.org/)
+with a simple, easy-to-remember set of commands.
+
 ## Known Issues
 NOTE: `vid` is intended for simple visualizations with minimal effort. Some
 known issues:
