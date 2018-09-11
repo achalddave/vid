@@ -17,23 +17,35 @@ codec_param = click.option('--codec', type=str, default=None)
 verbose_param = click.option('--verbose/--no-verbose', default=False)
 audio_param = click.option('--audio/--no-audio', 'save_audio', default=True)
 
-def globbed_paths(filepaths):
-    output = []
-    for filepath in filepaths:
-        globbed_files = glob.glob(filepath, recursive=True)
-        if not globbed_files:
-            globbed_files = [filepath]
-        sorted_paths = natsorted(globbed_files, alg=ns.PATH)
-        output.extend([Path(x) for x in sorted_paths])
-    return output
+
+def flatten_once(lst):
+    return [x for y in lst for x in y]
+
+
+def globbed(filepath):
+    globbed_files = glob.glob(filepath, recursive=True)
+    if not globbed_files:
+        globbed_files = [filepath]
+    sorted_paths = natsorted(globbed_files, alg=ns.PATH)
+    return [Path(x) for x in sorted_paths]
 
 
 def validate_globbed_paths(paths):
-    paths = globbed_paths(paths)
+    paths = flatten_once(globbed(path) for path in paths)
     for p in paths:
         if not p.exists():
             raise click.BadParameter('Path %s does not exist' % p)
     return paths
+
+
+def validate_globbed_paths_allow_dummy(paths, dummy_path):
+    globbed_paths = []
+    for path in paths:
+        if path == dummy_path:
+            globbed_paths.append(path)
+        else:
+            globbed_paths.extend(validate_globbed_paths([path]))
+    return globbed_paths
 
 
 def validate_path(path):
@@ -180,17 +192,16 @@ def vstack(videos, output, save_audio, loglevel, verbose):
 
 
 @main.command()
-@click.argument(
-    'videos',
-    required=True,
-    nargs=-1,
-    callback=on_value_only(validate_globbed_paths))
+@click.argument('videos', required=True, nargs=-1)
 @click.argument('output', required=True)
 @click.option('--num-rows', type=int, default=2)
 @audio_param
 @loglevel_param
 @verbose_param
 def grid(videos, output, num_rows, save_audio, loglevel, verbose):
+    blank_path = ''
+    videos = validate_globbed_paths_allow_dummy(videos, dummy_path=blank_path)
+
     from utils.moviepy_wrappers.composite_clip import clips_array_maybe_none
 
     if len(videos) % num_rows != 0:
@@ -205,7 +216,7 @@ def grid(videos, output, num_rows, save_audio, loglevel, verbose):
 
     for i, video in enumerate(videos):
         row = int(i // num_cols)
-        if video != Path('/dev/null'):
+        if video != blank_path:
             clip = VideoFileClip(str(video))
         else:
             clip = None
