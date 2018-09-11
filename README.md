@@ -7,11 +7,7 @@
 * **hstack**/**vstack**/**grid**: Arrange multiple videos in a specified layout,
   combining them into a single video.
 
-See `vid --help` for more info:
-
-  grid       Merge videos in a specific grid layout.
-  info       Report video duration, fps, and resolution.
-  vstack     Merge videos vertically into one video.
+See `vid <command> --help` for more info.
 
 ## Known Issues
 NOTE: `vid` is intended for simple visualizations with minimal effort. Some
