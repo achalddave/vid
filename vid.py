@@ -11,7 +11,6 @@ from PIL import Image
 from tqdm import tqdm
 
 
-
 loglevel_param = click.option('--loglevel', type=str, default='error')
 codec_param = click.option('--codec', type=str, default=None)
 verbose_param = click.option('--verbose/--no-verbose', default=False)
@@ -298,7 +297,6 @@ def info(video):
         # Right align all names for pretty output.
         key_pretty = key.rjust(max_width)
         print(f"{key_pretty}: {value}")
-
 
 
 if __name__ == '__main__':
