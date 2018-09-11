@@ -1,0 +1,3 @@
+natsort>=5
+moviepy >= 0.2
+click >= 5
