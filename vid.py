@@ -88,8 +88,31 @@ def slideshow(images, output, fps, shape, codec, loglevel, verbose):
     \b
     Example usage:
         vid slideshow *.png output.mp4
-    """
 
+    The images can be specified as an arbitrary list of paths or glob patterns.
+    If a glob pattern is specified, `vid` attempts to sort the resulting
+    paths in a sensible way using the `natsorted` library. For example, with
+    a directory structure as:
+
+    \b
+        /data
+            /video1
+                /frame000.png
+                /frame001.png
+            /video2
+                /frame000.png
+                /frame001.png
+
+    \b
+    With the following command:
+        vid slideshow '/data/*/*.png' output.mp4
+    the images will appear, as expected, in the following order:
+        ['/data/video1/frame000.png', '/data/video1/frame001.png',
+         '/data/video2/frame000.png', '/data/video2/frame001.png']
+
+    Note that the glob pattern must be in quotes for this to apply; otherwise,
+    the glob pattern will be expanded (and sorted) by your shell.
+    """
     # ImageSequenceClip doesn't play nicely with grayscale images, and
     # VideoClip has issues with images that have alpha channels, so I just roll
     # my own here.
@@ -238,7 +261,8 @@ def grid(videos, output, num_rows, save_audio, loglevel, verbose):
             video1.mp4 video2.mp4 video3.mp4 video4.mp4 video5.mp4 video6.mp4 \\
             output.mp4
 
-    \b The above command creates a grid layout as follows
+    \b
+    The above command creates a grid layout as follows
     video1.mp4    video2.mp4    video3.mp4
     video4.mp4    video5.mp4    video6.mp4
 
