@@ -62,6 +62,7 @@ def on_value_only(fn):
 
 @click.group()
 def main():
+    """vid is a command line tool for common video manipulation tasks."""
     pass
 
 
@@ -83,6 +84,13 @@ def main():
 @loglevel_param
 @verbose_param
 def slideshow(images, output, fps, shape, codec, loglevel, verbose):
+    """Create a video from a sequence of images.
+
+    \b
+    Example usage:
+        vid slideshow *.png output.mp4
+    """
+
     # ImageSequenceClip doesn't play nicely with grayscale images, and
     # VideoClip has issues with images that have alpha channels, so I just roll
     # my own here.
@@ -155,6 +163,17 @@ def slideshow(images, output, fps, shape, codec, loglevel, verbose):
 @loglevel_param
 @verbose_param
 def hstack(videos, output, save_audio, loglevel, verbose):
+    """Merge videos horizontally into one video.
+
+    \b
+    Example usage:
+        vid hstack first.mp4 second.mp4 third.mp4 output.mp4
+
+    \b
+    The above command creates puts three videos side-by-side:
+        video1.mp4    video2.mp4    video3.mp4
+    """
+
     from moviepy.video.io.VideoFileClip import VideoFileClip
     from utils.moviepy_wrappers.composite_clip import clips_array_maybe_none
 
@@ -180,6 +199,18 @@ def hstack(videos, output, save_audio, loglevel, verbose):
 @loglevel_param
 @verbose_param
 def vstack(videos, output, save_audio, loglevel, verbose):
+    """Merge videos vertically into one video.
+
+    \b
+    Example usage:
+        vid vstack *.mp4 output.mp4
+
+    \b
+    The above command creates puts three videos on top of each other:
+        video1.mp4
+        video2.mp4
+        video3.mp4
+    """
     from moviepy.video.io.VideoFileClip import VideoFileClip
     from utils.moviepy_wrappers.composite_clip import clips_array_maybe_none
 
@@ -199,6 +230,28 @@ def vstack(videos, output, save_audio, loglevel, verbose):
 @loglevel_param
 @verbose_param
 def grid(videos, output, num_rows, save_audio, loglevel, verbose):
+    """Merge videos in a specific grid layout.
+
+    \b
+    Example usage:
+        vid grid \\
+            --num-rows 2 \\
+            video1.mp4 video2.mp4 video3.mp4 video4.mp4 video5.mp4 video6.mp4 \\
+            output.mp4
+
+    \b The above command creates a grid layout as follows
+    video1.mp4    video2.mp4    video3.mp4
+    video4.mp4    video5.mp4    video6.mp4
+
+    \b
+    To indicate an empty spot in the grid, pass '' as the video path, like so:
+        vid grid \\
+            --num-rows 2 \\
+            video1.mp4 '' video3.mp4 video4.mp4 \\
+            output.mp4
+
+    The empty spot will be filled with a black image.
+    """
     blank_path = ''
     videos = validate_globbed_paths_allow_dummy(videos, dummy_path=blank_path)
 
@@ -231,6 +284,7 @@ def grid(videos, output, num_rows, save_audio, loglevel, verbose):
 @main.command()
 @click.argument('video', type=click.Path(exists=True))
 def info(video):
+    """Report video duration, fps, and resolution."""
     from moviepy.video.io.VideoFileClip import VideoFileClip
     clip = VideoFileClip(video)
     info = {
