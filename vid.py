@@ -167,9 +167,13 @@ def slideshow(images, output, fps, shape, codec, loglevel, verbose):
         return last_loaded['image']
 
     duration = len(images) / fps
+    # Handle "height/width not divisible by 2" error for libx264
+    ffmpeg_params = [
+        '-vf', "scale=trunc(iw/2)*2:trunc(ih/2)*2", '-pix_fmt', 'yuv420p'
+    ]
     with FFMPEG_VideoWriter(
             output, size=(width, height), fps=fps, withmask=has_alpha,
-            codec=codec) as writer:
+            codec=codec, ffmpeg_params=ffmpeg_params) as writer:
         for t in tqdm(np.arange(0, duration, 1.0 / fps), disable=not verbose):
             writer.write_frame(make_frame(t))
 
