@@ -151,6 +151,11 @@ def slideshow(images, output, fps, shape, codec, loglevel, verbose):
             [i for i in range(len(images)) if image_starts[i] <= t])
         if image_index != last_loaded['index']:
             image = Image.open(images[image_index])
+            # Handle palette-based images by replacing pixels with the
+            # respective color from the palette.
+            if image.palette is not None:
+                image = image.convert(image.palette.mode)
+
             if image.size != (width, height):
                 image = image.resize((width, height))
             image = np.array(image)
