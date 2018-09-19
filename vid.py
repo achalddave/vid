@@ -158,15 +158,19 @@ def slideshow(images, output, fps, shape, codec, loglevel, verbose):
 
             if image.size != (width, height):
                 image = image.resize((width, height))
+
             image = np.array(image)
-            if image.ndim == 2 or image.shape[2] == 1:
-                if image.ndim == 3 and image.shape[2] == 1:
-                    image = image[:, :, 0]
+            if image.ndim == 3 and image.shape[2] == 1:
+                image = image[:, :, 0]
+
+            if image.ndim == 2:
                 image = np.stack((image, image, image), -1)
 
+            # Create a fake alpha channel if the current image doesn't have it.
             if has_alpha and image.shape[2] == 3:
                 mask = np.ones((height, width, 1), dtype=np.uint8)
                 image = np.dstack((image, mask))
+
             last_loaded['index'] = image_index
             last_loaded['image'] = image
         return last_loaded['image']
