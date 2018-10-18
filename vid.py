@@ -324,16 +324,16 @@ def grid(videos, output, num_rows, save_audio, loglevel, verbose):
 @click.argument('video', type=click.Path(exists=True))
 def info(video):
     """Report video duration, fps, and resolution."""
-    from moviepy.video.io.VideoFileClip import VideoFileClip
-    clip = VideoFileClip(video)
-    info = {
+    from moviepy.video.io.ffmpeg_reader import ffmpeg_parse_infos
+    info = ffmpeg_parse_infos(video)
+    output = {
         'Path': Path(video).resolve(),
-        'Duration': clip.duration,
-        'FPS': clip.fps,
-        'Resolution': f'{clip.size[0]}x{clip.size[1]}'
+        'Duration': info['duration'],
+        'FPS': info['video_fps'],
+        'Resolution': f'{info["video_size"][0]}x{info["video_size"][1]}'
     }
     max_width = max(len(x) for x in info)
-    for key, value in info.items():
+    for key, value in output.items():
         # Right align all names for pretty output.
         key_pretty = key.rjust(max_width)
         print(f"{key_pretty}: {value}")
