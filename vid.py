@@ -72,7 +72,7 @@ def main():
     callback=on_value_only(validate_globbed_paths))
 @click.argument(
     'output', type=click.Path(file_okay=False, dir_okay=False), required=True)
-@click.option('--fps', type=int, default=24)
+@click.option('--fps', type=float, default=30)
 @click.option(
     '--shape',
     type=str,
