@@ -71,7 +71,8 @@ def main():
     required=True,
     nargs=-1,
     callback=on_value_only(validate_globbed_paths))
-@click.argument('output', required=True)
+@click.argument(
+    'output', type=click.Path(file_okay=False, dir_okay=False), required=True)
 @click.option('--fps', type=int, default=24)
 @click.option(
     '--shape',
@@ -193,7 +194,8 @@ def slideshow(images, output, fps, shape, codec, loglevel, verbose):
     required=True,
     nargs=-1,
     callback=on_value_only(validate_globbed_paths))
-@click.argument('output', required=True)
+@click.argument(
+    'output', type=click.Path(file_okay=False, dir_okay=False), required=True)
 @audio_param
 @loglevel_param
 @verbose_param
@@ -229,7 +231,8 @@ def hstack(videos, output, save_audio, loglevel, verbose):
     required=True,
     nargs=-1,
     callback=on_value_only(validate_globbed_paths))
-@click.argument('output', required=True)
+@click.argument(
+    'output', type=click.Path(file_okay=False, dir_okay=False), required=True)
 @audio_param
 @loglevel_param
 @verbose_param
@@ -259,7 +262,8 @@ def vstack(videos, output, save_audio, loglevel, verbose):
 
 @main.command()
 @click.argument('videos', required=True, nargs=-1)
-@click.argument('output', required=True)
+@click.argument(
+    'output', type=click.Path(file_okay=False, dir_okay=False), required=True)
 @click.option('--num-rows', type=int, default=2)
 @audio_param
 @loglevel_param
