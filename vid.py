@@ -113,6 +113,7 @@ def slideshow(images, output, fps, shape, codec, loglevel, verbose):
     Note that the glob pattern must be in quotes for this to apply; otherwise,
     the glob pattern will be expanded (and sorted) by your shell.
     """
+    import numpy as np
     # ImageSequenceClip doesn't play nicely with grayscale images, and
     # VideoClip has issues with images that have alpha channels, so I just roll
     # my own here.
