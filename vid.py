@@ -5,7 +5,6 @@ import logging
 from pathlib import Path
 
 import click
-import numpy as np
 from natsort import natsorted, ns
 from PIL import Image
 from tqdm import tqdm
