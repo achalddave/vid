@@ -10,7 +10,6 @@ from PIL import Image
 from tqdm import tqdm
 
 
-loglevel_param = click.option('--loglevel', type=str, default='error')
 codec_param = click.option('--codec', type=str, default=None)
 verbose_param = click.option('--verbose/--no-verbose', default=False)
 audio_param = click.option('--audio/--no-audio', 'save_audio', default=True)
@@ -80,9 +79,8 @@ def main():
           'size of the first frame.'),
     default=None)
 @codec_param
-@loglevel_param
 @verbose_param
-def slideshow(images, output, fps, shape, codec, loglevel, verbose):
+def slideshow(images, output, fps, shape, codec, verbose):
     """Create a video from a sequence of images.
 
     \b
@@ -197,9 +195,8 @@ def slideshow(images, output, fps, shape, codec, loglevel, verbose):
 @click.argument(
     'output', type=click.Path(file_okay=False, dir_okay=False), required=True)
 @audio_param
-@loglevel_param
 @verbose_param
-def hstack(videos, output, save_audio, loglevel, verbose):
+def hstack(videos, output, save_audio, verbose):
     """Merge videos horizontally into one video.
 
     \b
@@ -234,9 +231,8 @@ def hstack(videos, output, save_audio, loglevel, verbose):
 @click.argument(
     'output', type=click.Path(file_okay=False, dir_okay=False), required=True)
 @audio_param
-@loglevel_param
 @verbose_param
-def vstack(videos, output, save_audio, loglevel, verbose):
+def vstack(videos, output, save_audio, verbose):
     """Merge videos vertically into one video.
 
     \b
@@ -266,9 +262,8 @@ def vstack(videos, output, save_audio, loglevel, verbose):
     'output', type=click.Path(file_okay=False, dir_okay=False), required=True)
 @click.option('--num-rows', type=int, default=2)
 @audio_param
-@loglevel_param
 @verbose_param
-def grid(videos, output, num_rows, save_audio, loglevel, verbose):
+def grid(videos, output, num_rows, save_audio, verbose):
     """Merge videos in a specific grid layout.
 
     \b
