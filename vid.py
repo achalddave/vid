@@ -336,5 +336,46 @@ def info(video):
         print(f"{key_pretty}: {value}")
 
 
+@main.command()
+@click.argument('video', type=click.Path(exists=True))
+@click.argument(
+    'output', type=click.Path(file_okay=False, dir_okay=False), required=True)
+@click.option('--fps', type=float, default=None)
+@verbose_param
+def copy(video, output, fps, verbose):
+    """Create a copy of a video with different settings.
+
+    Currently, this can be used to change the frame rate, but hopefully this
+    will later support other tasks like changing the resolution."""
+    import subprocess
+    from moviepy.video.io.ffmpeg_reader import ffmpeg_parse_infos
+    from moviepy.config import get_setting
+
+    if verbose:
+        logging.getLogger().setLevel(logging.INFO)
+
+    if fps is None:
+        raise click.BadParameter(
+            'copy currently only supports changing frame rate.')
+    original_fps = ffmpeg_parse_infos(video)['video_fps']
+    fps_scale = original_fps / fps
+    cmd = [
+        get_setting("FFMPEG_BINARY"), "-i",
+        str(video), "-vf", 'setpts={}*PTS'.format(fps_scale), '-r',
+        str(fps),
+        str(output)
+    ]
+    logging.info('Running command: {}'.format(' '.join(cmd)))
+
+    try:
+        output = subprocess.check_output(cmd, stderr=subprocess.PIPE)
+    except subprocess.CalledProcessError as e:
+        logging.exception('[vid] Command returned an error: ')
+        logging.fatal(e.decode('utf8'))
+        return
+
+
 if __name__ == '__main__':
+    logging.basicConfig(format='%(asctime)s.%(msecs).03d: %(message)s',
+                        datefmt='%H:%M:%S')
     main()
