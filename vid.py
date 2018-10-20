@@ -326,7 +326,8 @@ def info(video):
         'Path': Path(video).resolve(),
         'Duration': info['duration'],
         'FPS': info['video_fps'],
-        'Resolution': f'{info["video_size"][0]}x{info["video_size"][1]}'
+        'Resolution':
+            '{w}x{h}'.format(w=info["video_size"][0], h=info["video_size"][1])
     }
     max_width = max(len(x) for x in info)
     for key, value in output.items():
