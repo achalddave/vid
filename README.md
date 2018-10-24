@@ -6,7 +6,7 @@
 * **info**: Report video duration, fps, and resolution.
 * **hstack**/**vstack**/**grid**: Arrange multiple videos in a specified layout,
   combining them into a single video.
-* *download*: Download videos using
+* **download**: Download videos using
   [youtube-dl](https://github.com/rg3/youtube-dl/) and optionally trim to
   specified start/end times.
 
