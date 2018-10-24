@@ -375,6 +375,98 @@ def copy(video, output, fps, verbose):
         return
 
 
+@main.command()
+@click.argument('url', type=str)
+@click.argument('output', type=click.Path(file_okay=False, dir_okay=False))
+@click.option(
+    '-s', '--start-time', type=str, help="Start time offset.")
+@click.option('-e', '--end-time', type=str, help="End time offset.")
+@click.option(
+    '-d',
+    '--duration',
+    type=str,
+    help="Duration offset from start time; an alternative to --end-time.")
+@click.option('--youtubedl_args', type=str)
+@click.option('--ffmpeg_args', type=str)
+@verbose_param
+def download(url, output, start_time, end_time, duration, youtubedl_args,
+             ffmpeg_args, verbose):
+    """Download video using ffmpeg, optionally trimming it.
+
+    Times are interpreted directly by ffmpeg. The accepted syntax is described
+    at <https://ffmpeg.org/ffmpeg-utils.html#time-duration-syntax>.
+    """
+    if end_time is not None and duration is not None:
+        raise click.BadParameter(
+            '--end-time and --duration cannot both be specified.')
+
+    import subprocess
+    import sys
+    from moviepy.config import get_setting
+
+    Path(output).parent.mkdir(exist_ok=True, parents=True)
+
+    youtubedl_command = ['youtube-dl', '-g', url]
+    if youtubedl_args:
+        youtubedl_command += youtubedl_args
+    else:
+        youtubedl_command += ['-f best']
+
+    if verbose:
+        logging.getLogger().setLevel(logging.INFO)
+
+    logging.info('Running youtube-dl command:\n%s',
+                 ' '.join(youtubedl_command))
+
+    try:
+        youtubedl_output = subprocess.check_output(youtubedl_command).decode(
+            'utf-8')
+    except subprocess.CalledProcessError as e:
+        logging.exception('Failed command.\nException: %s\nOutput:\n %s',
+                          e.returncode, e.output.decode('utf-8'))
+        sys.exit(1)
+
+    urls = youtubedl_output.strip().split('\n')
+    if len(urls) == 1:
+        video_url = audio_url = urls[0]
+    elif len(urls) == 2:
+        video_url, audio_url = urls
+    else:
+        raise ValueError('Unknown youtube-dl output:\n%s', youtubedl_output)
+
+    # Final command:
+    #   ffmpeg -ss {start} -i {video_url} -ss {start} \
+    #       -i {audio_url} -t {duration} -c copy {output}
+    # Note that we need two inputs (one for audio and one for video). See
+    #   https://github.com/rg3/youtube-dl/issues/622#issuecomment-320962680
+    ffmpeg_command = [get_setting('FFMPEG_BINARY')]
+    if start_time is not None:
+        ffmpeg_command += [
+            '-ss', start_time, '-i', video_url, '-ss', start_time, '-i',
+            audio_url
+        ]
+    else:
+        ffmpeg_command += ['-i', video_url, '-i', audio_url]
+
+    if end_time is not None:
+        ffmpeg_command += ['-to', end_time]
+    elif duration is not None:
+        ffmpeg_command += ['-t', duration]
+
+    ffmpeg_command += ['-c', 'copy', output]
+
+    logging.info('Running ffmpeg command:\n%s', ' '.join(ffmpeg_command))
+    try:
+        output = subprocess.check_output(
+            ffmpeg_command,
+            stderr=subprocess.STDOUT,
+            stdin=subprocess.DEVNULL)
+    except subprocess.CalledProcessError as e:
+        logging.exception('Failed command.\nException: %s\nOutput:\n %s\n===',
+                          e.returncode, e.output.decode('utf-8'))
+        sys.exit(1)
+
+
 if __name__ == '__main__':
     logging.basicConfig(format='%(asctime)s.%(msecs).03d: %(message)s',
                         datefmt='%H:%M:%S')
