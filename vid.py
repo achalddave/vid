@@ -184,7 +184,7 @@ def slideshow(images, output, fps, shape, num_threads, buffer_size, codec,
         load_futures = [None for _ in images]
         if buffer_size is None:
             buffer_size = 10 * num_threads
-        for i in range(buffer_size):
+        for i in range(min(buffer_size, len(images))):
             load_futures[i] = executor.submit(load_frame_raw, i)
 
         def load_frame(frame_index):
