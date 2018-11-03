@@ -14,6 +14,8 @@ codec_param = click.option('--codec', type=str, default=None)
 verbose_param = click.option('--verbose/--no-verbose', default=False)
 audio_param = click.option('--audio/--no-audio', 'save_audio', default=True)
 
+IMAGE_EXTENSIONS = ['.jpg', '.jpeg', '.png', '.ppm', '.bmp', '.pgm', '.tif']
+
 
 def flatten_once(lst):
     return [x for y in lst for x in y]
@@ -60,10 +62,33 @@ def on_value_only(fn):
 def clip_from_path(path):
     if path == '':
         return None
+    elif path.suffix.lower() in IMAGE_EXTENSIONS:
+        from moviepy.video.VideoClip import ImageClip
+        return ImageClip(str(path))
     else:
         from moviepy.video.io.VideoFileClip import VideoFileClip
         return VideoFileClip(str(path))
 
+
+def set_image_clip_duration(clips):
+    """Set any ImageClip's duration to that of the first clip with a duration.
+    """
+    if isinstance(clips[0], list):
+        clips = flatten_once(clips)
+
+    duration = None
+    for clip in clips:
+        if hasattr(clip, 'duration') and clip.duration is not None:
+            duration = clip.duration
+            break
+    else:
+        raise ValueError('Could not infer duration of clips.')
+
+    for i, clip in enumerate(clips):
+        if not hasattr(clip, 'duration') or clip.duration is None:
+            clip.duration = duration
+            if not hasattr(clip, 'end') or clip.end is None:
+                clip.end = duration
 
 
 @click.group()
@@ -252,6 +277,7 @@ def hstack(videos, output, save_audio, verbose):
     from utils.moviepy_wrappers.composite_clip import clips_array_maybe_none
 
     clips = [[clip_from_path(v) for v in videos]]
+    set_image_clip_duration(clips)
     output_clip = clips_array_maybe_none(clips)
     if not save_audio:
         output_clip = output_clip.without_audio()
@@ -283,6 +309,7 @@ def vstack(videos, output, save_audio, verbose):
 
     from utils.moviepy_wrappers.composite_clip import clips_array_maybe_none
     clips = [[clip_from_path(v)] for v in videos]
+    set_image_clip_duration(clips)
     output_clip = clips_array_maybe_none(clips)
     if not save_audio:
         output_clip = output_clip.without_audio()
@@ -343,6 +370,7 @@ def grid(videos, output, num_rows, save_audio, verbose):
             clip = None
         grid[row].append(clip)
 
+    set_image_clip_duration(grid)
     output_clip = clips_array_maybe_none(grid)
     if not save_audio:
         output_clip = output_clip.without_audio()
