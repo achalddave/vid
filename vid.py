@@ -80,14 +80,14 @@ def main():
     default=None)
 @click.option(
     '-j', '--num-threads',
-    default=4,
+    default=8,
     type=int,
     help='Number of threads for loading images.')
 @click.option(
     '--buffer-size',
     default=None,
     type=int,
-    help='Number of images to preload. Default: 10 * --num_threads')
+    help='Number of images to preload. Default: 10 * --num-threads')
 @codec_param
 @verbose_param
 def slideshow(images, output, fps, shape, num_threads, buffer_size, codec,
