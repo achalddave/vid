@@ -57,6 +57,15 @@ def on_value_only(fn):
     return wrapper
 
 
+def clip_from_path(path):
+    if path == '':
+        return None
+    else:
+        from moviepy.video.io.VideoFileClip import VideoFileClip
+        return VideoFileClip(str(path))
+
+
+
 @click.group()
 def main():
     """vid is a command line tool for common video manipulation tasks."""
@@ -221,11 +230,7 @@ def slideshow(images, output, fps, shape, num_threads, buffer_size, codec,
 
 
 @main.command()
-@click.argument(
-    'videos',
-    required=True,
-    nargs=-1,
-    callback=on_value_only(validate_globbed_paths))
+@click.argument('videos', required=True, nargs=-1)
 @click.argument(
     'output', type=click.Path(file_okay=False, dir_okay=False), required=True)
 @audio_param
@@ -241,14 +246,12 @@ def hstack(videos, output, save_audio, verbose):
     The above command creates puts three videos side-by-side:
         video1.mp4    video2.mp4    video3.mp4
     """
+    blank_path = ''
+    videos = validate_globbed_paths_allow_dummy(videos, dummy_path=blank_path)
 
-    from moviepy.video.io.VideoFileClip import VideoFileClip
     from utils.moviepy_wrappers.composite_clip import clips_array_maybe_none
 
-    clips = [[
-        VideoFileClip(str(v)) if v != Path('/dev/null') else None
-        for v in videos
-    ]]
+    clips = [[clip_from_path(v) for v in videos]]
     output_clip = clips_array_maybe_none(clips)
     if not save_audio:
         output_clip = output_clip.without_audio()
@@ -257,11 +260,7 @@ def hstack(videos, output, save_audio, verbose):
 
 
 @main.command()
-@click.argument(
-    'videos',
-    required=True,
-    nargs=-1,
-    callback=on_value_only(validate_globbed_paths))
+@click.argument('videos', required=True, nargs=-1)
 @click.argument(
     'output', type=click.Path(file_okay=False, dir_okay=False), required=True)
 @audio_param
@@ -279,11 +278,11 @@ def vstack(videos, output, save_audio, verbose):
         video2.mp4
         video3.mp4
     """
-    from moviepy.video.io.VideoFileClip import VideoFileClip
-    from utils.moviepy_wrappers.composite_clip import clips_array_maybe_none
+    blank_path = ''
+    videos = validate_globbed_paths_allow_dummy(videos, dummy_path=blank_path)
 
-    clips = [[VideoFileClip(str(v)) if v != Path('/dev/null') else None]
-             for v in videos]
+    from utils.moviepy_wrappers.composite_clip import clips_array_maybe_none
+    clips = [[clip_from_path(v)] for v in videos]
     output_clip = clips_array_maybe_none(clips)
     if not save_audio:
         output_clip = output_clip.without_audio()
