@@ -78,9 +78,20 @@ def main():
     help=('Specify size of output video, in WxH format. By default, use the '
           'size of the first frame.'),
     default=None)
+@click.option(
+    '-j', '--num-threads',
+    default=4,
+    type=int,
+    help='Number of threads for loading images.')
+@click.option(
+    '--buffer-size',
+    default=None,
+    type=int,
+    help='Number of images to preload. Default: 10 * --num_threads')
 @codec_param
 @verbose_param
-def slideshow(images, output, fps, shape, codec, verbose):
+def slideshow(images, output, fps, shape, num_threads, buffer_size, codec,
+              verbose):
     """Create a video from a sequence of images.
 
     \b
@@ -131,7 +142,6 @@ def slideshow(images, output, fps, shape, codec, verbose):
     image_starts = [
         1.0 * i / fps - np.finfo(np.float32).eps for i in range(len(images))
     ]
-    last_loaded = {'index': None, 'image': None}
 
     if shape is None:
         width, height = Image.open(images[0]).size
@@ -145,33 +155,56 @@ def slideshow(images, output, fps, shape, codec, verbose):
 
     has_alpha = any(Image.open(x).mode == 'RGBA' for x in images)
 
+    def load_frame_raw(frame_index):
+        image = Image.open(images[frame_index])
+        # Handle palette-based images by replacing pixels with the
+        # respective color from the palette.
+        if image.palette is not None:
+            image = image.convert(image.palette.mode)
+
+        if image.size != (width, height):
+            image = image.resize((width, height))
+
+        image = np.asarray(image)
+        if image.ndim == 3 and image.shape[2] == 1:
+            image = image[:, :, 0]
+
+        if image.ndim == 2:
+            image = np.stack((image, image, image), -1)
+
+        # Create a fake alpha channel if the current image doesn't have it.
+        if has_alpha and image.shape[2] == 3:
+            mask = np.ones((height, width, 1), dtype=np.uint8)
+            image = np.dstack((image, mask))
+        return image
+
+    if num_threads > 0:
+        from concurrent.futures import ThreadPoolExecutor
+        executor = ThreadPoolExecutor(num_threads)
+        load_futures = [None for _ in images]
+        if buffer_size is None:
+            buffer_size = 10 * num_threads
+        for i in range(buffer_size):
+            load_futures[i] = executor.submit(load_frame_raw, i)
+
+        def load_frame(frame_index):
+            next_preload = frame_index + buffer_size
+            if (next_preload < len(images)
+                    and load_futures[next_preload] is None):
+                load_futures[next_preload] = executor.submit(
+                    load_frame_raw, next_preload)
+            return load_futures[frame_index].result()
+    else:
+        load_frame = load_frame_raw
+
+    last_loaded = {'index': None, 'image': None}
+
     def make_frame(t):
         image_index = max(
             [i for i in range(len(images)) if image_starts[i] <= t])
         if image_index != last_loaded['index']:
-            image = Image.open(images[image_index])
-            # Handle palette-based images by replacing pixels with the
-            # respective color from the palette.
-            if image.palette is not None:
-                image = image.convert(image.palette.mode)
-
-            if image.size != (width, height):
-                image = image.resize((width, height))
-
-            image = np.array(image)
-            if image.ndim == 3 and image.shape[2] == 1:
-                image = image[:, :, 0]
-
-            if image.ndim == 2:
-                image = np.stack((image, image, image), -1)
-
-            # Create a fake alpha channel if the current image doesn't have it.
-            if has_alpha and image.shape[2] == 3:
-                mask = np.ones((height, width, 1), dtype=np.uint8)
-                image = np.dstack((image, mask))
-
             last_loaded['index'] = image_index
-            last_loaded['image'] = image
+            last_loaded['image'] = load_frame(image_index)
         return last_loaded['image']
 
     duration = len(images) / fps
@@ -183,7 +216,8 @@ def slideshow(images, output, fps, shape, codec, verbose):
             output, size=(width, height), fps=fps, withmask=has_alpha,
             codec=codec, ffmpeg_params=ffmpeg_params) as writer:
         for t in tqdm(np.arange(0, duration, 1.0 / fps), disable=not verbose):
-            writer.write_frame(make_frame(t))
+            frame = make_frame(t)
+            writer.write_frame(frame)
 
 
 @main.command()
