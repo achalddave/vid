@@ -9,7 +9,7 @@ from natsort import natsorted, ns
 from PIL import Image
 from tqdm import tqdm
 
-from utils import split_frames
+from .utils import split_frames
 
 
 codec_param = click.option('--codec', type=str, default=None)
