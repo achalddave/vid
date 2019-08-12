@@ -9,6 +9,8 @@
 * **download**: Download videos using
   [youtube-dl](https://github.com/rg3/youtube-dl/) and optionally trim to
   specified start/end times.
+- **dump_frames**: Dump frames for a video or list of videos. Dumps frames in
+  parallel by default if multiple videos are specified.
 
 See `vid <command> --help` for more info.
 

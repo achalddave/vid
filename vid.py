@@ -9,6 +9,8 @@ from natsort import natsorted, ns
 from PIL import Image
 from tqdm import tqdm
 
+from utils import split_frames
+
 
 codec_param = click.option('--codec', type=str, default=None)
 verbose_param = click.option('--verbose/--no-verbose', default=False)
@@ -528,7 +530,40 @@ def download(url, output, start_time, end_time, duration, youtubedl_args,
         sys.exit(1)
 
 
+@main.command()
+@click.argument('video',
+                type=click.Path(exists=True))
+@click.argument('output_dir', type=click.Path(exists=False))
+@click.option('--list', 'treat_as_list', is_flag=True,
+              help='Treat VIDEO as a list of new-line separated video paths.')
+@click.option('--fps', type=float, default=0)
+@click.option(
+    '-j', '--num-workers',
+    default=8,
+    help='Number of processes extracting images if --list is specified.',
+    type=int)
+def dump_frames(video, output_dir, treat_as_list, fps, num_workers):
+    """Dump frames from VIDEO to OUTPUT_DIR.
+
+    Example usage:
+        vid dump_frames video.mp4 /path/to/output/dir
+        vid dump_frames videos.txt /path/to/output/dir --list
+    """
+    if treat_as_list:
+        video_list = video
+        with open(video_list, 'r') as f:
+            videos = [Path(x.strip()) for x in f]
+        for i, path in enumerate(videos):
+            if not path.exists():
+                raise ValueError(
+                    f"Path {path} at line {i} in {video_list} does not exist")
+        split_frames.dump_frames_parallel(videos, output_dir, fps, num_workers)
+    else:
+        split_frames.dump_frames(video, output_dir, fps)
+
+
 if __name__ == '__main__':
+    logging.getLogger().setLevel(logging.INFO)
     logging.basicConfig(format='%(asctime)s.%(msecs).03d: %(message)s',
                         datefmt='%H:%M:%S')
     main()
