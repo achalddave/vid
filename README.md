@@ -18,6 +18,12 @@ See `vid <command> --help` for more info.
 [`moviepy`](https://github.com/Zulko/moviepy) and [`ffmpeg`](http://ffmpeg.org/)
 with a simple, easy-to-remember set of commands.
 
+## Installation
+
+```python
+pip install -e 'git+https://github.com/achalddave/vid.git#egg=vid'
+```
+
 ## Known Issues
 NOTE: `vid` is intended for simple visualizations with minimal effort. Some
 known issues:
