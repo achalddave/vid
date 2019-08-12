@@ -2,15 +2,20 @@
 
 `vid` is a command line tool for simple video manipulation. Current features:
 
-* **slideshow**: Create a video from a sequence of images.
-* **info**: Report video duration, fps, and resolution.
-* **hstack**/**vstack**/**grid**: Arrange multiple videos in a specified layout,
-  combining them into a single video.
-* **download**: Download videos using
-  [youtube-dl](https://github.com/rg3/youtube-dl/) and optionally trim to
-  specified start/end times.
-* **dump_frames**: Dump frames for a video or list of videos. Dumps frames in
-  parallel by default if multiple videos are specified.
+* `vid slideshow "frames/*.png" video.mp4`: Create a video from a sequence of
+  images.
+* `vid info video.mp4`: Report video duration, fps, and resolution.
+* `vid [hstack|vstack|grid] video1.mp4 video2.mp4 output.mp4`: Arrange multiple
+  videos next to each other. `hstack` puts videos next to each other; `vstack`
+  puts them on top of each other; `grid` creates a grid that can be controlled
+  with the `--num-rows` flag.
+* `vid download 'https://www.youtube.com/watch?v=dQw4w9WgXcQ' -s 42 -d 2`:
+  Download videos using [youtube-dl](https://github.com/rg3/youtube-dl/)
+  and optionally trim to specified start/end times (in this example, trim a
+  2 second clip starting at t=42s).
+* `vid dump_frames video.mp4 ./video_frames`: Dump frames for a video or list
+  of videos. Dumps frames in parallel by default if multiple videos are
+  specified.
 
 See `vid <command> --help` for more info.
 
