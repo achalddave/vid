@@ -276,7 +276,7 @@ def hstack(videos, output, save_audio, verbose):
     blank_path = ''
     videos = validate_globbed_paths_allow_dummy(videos, dummy_path=blank_path)
 
-    from utils.moviepy_wrappers.composite_clip import clips_array_maybe_none
+    from .utils.moviepy_wrappers.composite_clip import clips_array_maybe_none
 
     clips = [[clip_from_path(v) for v in videos]]
     set_image_clip_duration(clips)
@@ -309,7 +309,7 @@ def vstack(videos, output, save_audio, verbose):
     blank_path = ''
     videos = validate_globbed_paths_allow_dummy(videos, dummy_path=blank_path)
 
-    from utils.moviepy_wrappers.composite_clip import clips_array_maybe_none
+    from .utils.moviepy_wrappers.composite_clip import clips_array_maybe_none
     clips = [[clip_from_path(v)] for v in videos]
     set_image_clip_duration(clips)
     output_clip = clips_array_maybe_none(clips)
@@ -352,7 +352,7 @@ def grid(videos, output, num_rows, save_audio, verbose):
     blank_path = ''
     videos = validate_globbed_paths_allow_dummy(videos, dummy_path=blank_path)
 
-    from utils.moviepy_wrappers.composite_clip import clips_array_maybe_none
+    from .utils.moviepy_wrappers.composite_clip import clips_array_maybe_none
 
     if len(videos) % num_rows != 0:
         raise ValueError('Number of videos (%s) is not evenly divisible by '
