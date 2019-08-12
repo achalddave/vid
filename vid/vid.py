@@ -549,6 +549,7 @@ def dump_frames(video, output_dir, treat_as_list, fps, num_workers):
         vid dump_frames video.mp4 /path/to/output/dir
         vid dump_frames videos.txt /path/to/output/dir --list
     """
+    output_dir = Path(output_dir)
     if treat_as_list:
         video_list = video
         with open(video_list, 'r') as f:

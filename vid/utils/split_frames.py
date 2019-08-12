@@ -82,8 +82,7 @@ def dump_frames(video_path, output_dir, fps, logger_name=None):
     """Dump frames at frames_per_second from a video to output_dir.
 
     If frames_per_second is None, the clip's fps attribute is used instead."""
-    if not os.path.isdir(output_dir):
-        os.mkdir(output_dir)
+    output_dir.mkdir(exist_ok=True, parents=True)
 
     if logger_name:
         file_logger = logging.getLogger(logger_name)
