@@ -113,7 +113,7 @@ def main():
           'size of the first frame.'),
     default=None)
 @click.option(
-    '-j', '--num-threads',
+    '-j', '--num-workers',
     default=8,
     type=int,
     help='Number of threads for loading images.')
@@ -121,10 +121,10 @@ def main():
     '--buffer-size',
     default=None,
     type=int,
-    help='Number of images to preload. Default: 10 * --num-threads')
+    help='Number of images to preload. Default: 10 * --num-workers')
 @codec_param
 @verbose_param
-def slideshow(images, output, fps, shape, num_threads, buffer_size, codec,
+def slideshow(images, output, fps, shape, num_workers, buffer_size, codec,
               verbose):
     """Create a video from a sequence of images.
 
@@ -212,12 +212,12 @@ def slideshow(images, output, fps, shape, num_threads, buffer_size, codec,
             image = np.dstack((image, mask))
         return image
 
-    if num_threads > 0:
+    if num_workers > 0:
         from concurrent.futures import ThreadPoolExecutor
-        executor = ThreadPoolExecutor(num_threads)
+        executor = ThreadPoolExecutor(num_workers)
         load_futures = [None for _ in images]
         if buffer_size is None:
-            buffer_size = 10 * num_threads
+            buffer_size = 10 * num_workers
         for i in range(min(buffer_size, len(images))):
             load_futures[i] = executor.submit(load_frame_raw, i)
 
