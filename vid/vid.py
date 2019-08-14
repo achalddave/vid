@@ -547,6 +547,7 @@ def download(url, output, start_time, end_time, duration, youtubedl_args,
 def dump_frames(video, output_dir, treat_as_list, fps, num_workers):
     """Dump frames from VIDEO to OUTPUT_DIR.
 
+    \b
     Example usage:
         vid dump_frames video.mp4 /path/to/output/dir
         vid dump_frames videos.txt /path/to/output/dir --list
