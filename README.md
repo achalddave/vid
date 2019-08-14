@@ -47,7 +47,7 @@ with a simple, easy-to-remember set of commands.
 ## Installation
 
 ```python
-pip install -e 'git+https://github.com/achalddave/vid.git#egg=vid'
+pip install 'git+https://github.com/achalddave/vid.git#egg=vid'
 ```
 
 ## Known Issues
