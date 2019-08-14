@@ -530,7 +530,9 @@ def download(url, output, start_time, end_time, duration, youtubedl_args,
         sys.exit(1)
 
 
-@main.command()
+# Explicitly name command to prevent click 7.0 from converting command to use
+# dash instead of underscore. <https://github.com/pallets/click/issues/1123>
+@main.command(name='dump_frames')
 @click.argument('video',
                 type=click.Path(exists=True))
 @click.argument('output_dir', type=click.Path(exists=False))
