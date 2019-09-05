@@ -78,11 +78,19 @@ def are_frames_dumped(video_path,
     return True
 
 
-def dump_frames(video_path, output_dir, fps, logger_name=None):
+def dump_frames(video_path,
+                output_dir,
+                fps,
+                extension='.png',
+                jpeg_qscale=2,
+                logger_name=None):
     """Dump frames at frames_per_second from a video to output_dir.
 
     If frames_per_second is None, the clip's fps attribute is used instead."""
     output_dir.mkdir(exist_ok=True, parents=True)
+
+    if extension[0] != '.':
+        extension = f'.{extension}'
 
     if logger_name:
         file_logger = logging.getLogger(logger_name)
@@ -102,7 +110,7 @@ def dump_frames(video_path, output_dir, fps, logger_name=None):
         logging.exception('Exception:')
         return
     info_path = '{}/info.json'.format(output_dir)
-    name_format = '{}/frame%04d.png'.format(output_dir)
+    name_format = '{}/frame%04d{}'.format(output_dir, extension)
 
     if fps is None or fps == 0:
         fps = video_fps  # Extract all frames
@@ -115,6 +123,11 @@ def dump_frames(video_path, output_dir, fps, logger_name=None):
         expected_info_path=info_path,
         expected_name_format=name_format)
 
+    if extension.lower() in ('.jpg', '.jpeg'):
+        qscale = ['-qscale:v', jpeg_qscale]
+    else:
+        qscale = []
+
     if are_frames_dumped_wrapper(log_reason=False):
         file_logger.info('Frames for {} exist, skipping...'.format(video_path))
         return
@@ -122,10 +135,10 @@ def dump_frames(video_path, output_dir, fps, logger_name=None):
     successfully_wrote_images = False
     try:
         if fps == video_fps:
-            cmd = ['ffmpeg', '-i', str(video_path), name_format]
+            cmd = ['ffmpeg', '-i', str(video_path)] + qscale + [name_format]
         else:
-            cmd = ['ffmpeg', '-i', str(video_path), '-vf',
-                   'fps={}'.format(fps), name_format]
+            cmd = ['ffmpeg', '-i', str(video_path)
+                   ] + qscale + ['-vf', 'fps={}'.format(fps), name_format]
         subprocess.check_output(cmd, stderr=subprocess.STDOUT)
         successfully_wrote_images = True
     except subprocess.CalledProcessError as e:
@@ -150,7 +163,12 @@ def dump_frames_star(args):
     return dump_frames(*args)
 
 
-def dump_frames_parallel(videos, output_dir, fps, num_workers):
+def dump_frames_parallel(videos,
+                         output_dir,
+                         fps,
+                         num_workers,
+                         extension='.png',
+                         jpeg_qscale=2):
     if fps == 0:
         fps = None
 
@@ -161,7 +179,7 @@ def dump_frames_parallel(videos, output_dir, fps, num_workers):
     for video_path in videos:
         output_video_dir = output_dir / video_path.stem
         dump_frames_tasks.append(
-            (video_path, output_video_dir, fps))
+            (video_path, output_video_dir, fps, extension, jpeg_qscale))
 
     if num_workers > 1:
         pool = Pool(num_workers)

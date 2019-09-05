@@ -536,9 +536,14 @@ def download(url, output, start_time, end_time, duration, youtubedl_args,
 @click.argument('video',
                 type=click.Path(exists=True))
 @click.argument('output_dir', type=click.Path(exists=False))
+@click.option('--extension', default='.png')
 @click.option('--list', 'treat_as_list', is_flag=True,
               help='Treat VIDEO as a list of new-line separated video paths.')
 @click.option('--fps', type=float, default=0)
+@click.option('--qscale',
+              type=int,
+              default=2,
+              help='Qscale for ffmpeg. Only used for JPEG output.')
 @click.option(
     '-j', '--num-workers',
     default=8,
