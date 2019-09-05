@@ -536,10 +536,10 @@ def download(url, output, start_time, end_time, duration, youtubedl_args,
 @click.argument('video',
                 type=click.Path(exists=True))
 @click.argument('output_dir', type=click.Path(exists=False))
-@click.option('--extension', default='.png')
 @click.option('--list', 'treat_as_list', is_flag=True,
               help='Treat VIDEO as a list of new-line separated video paths.')
 @click.option('--fps', type=float, default=0)
+@click.option('--extension', default='.png')
 @click.option('--qscale',
               type=int,
               default=2,
@@ -549,7 +549,8 @@ def download(url, output, start_time, end_time, duration, youtubedl_args,
     default=8,
     help='Number of processes extracting images if --list is specified.',
     type=int)
-def dump_frames(video, output_dir, treat_as_list, fps, num_workers):
+def dump_frames(video, output_dir, treat_as_list, fps, extension, qscale,
+                num_workers):
     """Dump frames from VIDEO to OUTPUT_DIR.
 
     \b
