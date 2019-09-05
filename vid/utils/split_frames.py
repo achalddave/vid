@@ -124,7 +124,7 @@ def dump_frames(video_path,
         expected_name_format=name_format)
 
     if extension.lower() in ('.jpg', '.jpeg'):
-        qscale = ['-qscale:v', jpeg_qscale]
+        qscale = ['-qscale:v', str(jpeg_qscale)]
     else:
         qscale = []
 

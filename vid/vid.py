@@ -567,9 +567,10 @@ def dump_frames(video, output_dir, treat_as_list, fps, extension, qscale,
             if not path.exists():
                 raise ValueError(
                     f"Path {path} at line {i} in {video_list} does not exist")
-        split_frames.dump_frames_parallel(videos, output_dir, fps, num_workers)
+        split_frames.dump_frames_parallel(videos, output_dir, fps, num_workers,
+                                          extension, qscale)
     else:
-        split_frames.dump_frames(video, output_dir, fps)
+        split_frames.dump_frames(video, output_dir, fps, extension, qscale)
 
 
 if __name__ == '__main__':
