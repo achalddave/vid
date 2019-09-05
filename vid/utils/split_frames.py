@@ -90,7 +90,7 @@ def dump_frames(video_path, output_dir, fps, logger_name=None):
         file_logger = logging.root
 
     try:
-        video_info = ffmpeg_parse_infos(video_path)
+        video_info = ffmpeg_parse_infos(str(video_path))
         video_fps = video_info['video_fps']
     except OSError:
         logging.error('Unable to open video (%s), skipping.' % video_path)
