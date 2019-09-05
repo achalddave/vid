@@ -122,9 +122,9 @@ def dump_frames(video_path, output_dir, fps, logger_name=None):
     successfully_wrote_images = False
     try:
         if fps == video_fps:
-            cmd = ['ffmpeg', '-i', video_path, name_format]
+            cmd = ['ffmpeg', '-i', str(video_path), name_format]
         else:
-            cmd = ['ffmpeg', '-i', video_path, '-vf',
+            cmd = ['ffmpeg', '-i', str(video_path), '-vf',
                    'fps={}'.format(fps), name_format]
         subprocess.check_output(cmd, stderr=subprocess.STDOUT)
         successfully_wrote_images = True
