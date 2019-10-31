@@ -545,12 +545,17 @@ def download(url, output, start_time, end_time, duration, youtubedl_args,
               default=2,
               help='Qscale for ffmpeg. Only used for JPEG output.')
 @click.option(
+    '--prefix',
+    type=str,
+    default='',
+    help='If --list is specified, pre-pend prefix to all lines in the list.')
+@click.option(
     '-j', '--num-workers',
     default=8,
     help='Number of processes extracting images if --list is specified.',
     type=int)
 def dump_frames(video, output_dir, treat_as_list, fps, extension, qscale,
-                num_workers):
+                prefix, num_workers):
     """Dump frames from VIDEO to OUTPUT_DIR.
 
     \b
@@ -560,9 +565,11 @@ def dump_frames(video, output_dir, treat_as_list, fps, extension, qscale,
     """
     output_dir = Path(output_dir)
     if treat_as_list:
+        if prefix and Path(prefix).is_dir() and prefix[-1] != '/':
+            prefix += '/'
         video_list = video
         with open(video_list, 'r') as f:
-            videos = [Path(x.strip()) for x in f]
+            videos = [Path(prefix + x.strip()) for x in f]
         for i, path in enumerate(videos):
             if not path.exists():
                 raise ValueError(
