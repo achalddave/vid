@@ -539,7 +539,7 @@ def download(url, output, start_time, end_time, duration, youtubedl_args,
 @click.option('--list', 'treat_as_list', is_flag=True,
               help='Treat VIDEO as a list of new-line separated video paths.')
 @click.option('--fps', type=float, default=0)
-@click.option('--extension', default='.png')
+@click.option('--extension', default='.jpg')
 @click.option('--qscale',
               type=int,
               default=2,
