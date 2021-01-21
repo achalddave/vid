@@ -284,7 +284,7 @@ def hstack(videos, output, save_audio, verbose):
     if not save_audio:
         output_clip = output_clip.without_audio()
 
-    output_clip.write_videofile(output, verbose=verbose, progress_bar=verbose)
+    output_clip.write_videofile(output, verbose=verbose)
 
 
 @main.command()
@@ -315,7 +315,7 @@ def vstack(videos, output, save_audio, verbose):
     output_clip = clips_array_maybe_none(clips)
     if not save_audio:
         output_clip = output_clip.without_audio()
-    output_clip.write_videofile(output, verbose=verbose, progress_bar=verbose)
+    output_clip.write_videofile(output, verbose=verbose)
 
 
 @main.command()
@@ -376,7 +376,7 @@ def grid(videos, output, num_rows, save_audio, verbose):
     output_clip = clips_array_maybe_none(grid)
     if not save_audio:
         output_clip = output_clip.without_audio()
-    output_clip.write_videofile(output, verbose=verbose, progress_bar=verbose)
+    output_clip.write_videofile(output, verbose=verbose)
 
 
 @main.command()
