@@ -87,7 +87,7 @@ def set_image_clip_duration(clips):
         raise ValueError('Could not infer duration of clips.')
 
     for i, clip in enumerate(clips):
-        if not hasattr(clip, 'duration') or clip.duration is None:
+        if clip is not None and (not hasattr(clip, 'duration') or clip.duration is None):
             clip.duration = duration
             if not hasattr(clip, 'end') or clip.end is None:
                 clip.end = duration
